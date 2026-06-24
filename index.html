@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Rosapenna">
+  <meta name="theme-color" content="#1a3a2a">
+  <title>Rosapenna Golf 2026</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      --gd: #1a3a2a; --gm: #2d6a4f; --gl: #52b788; --gp: #d8f3dc;
+      --gold: #c9a84c; --gold-l: #f0d080;
+      --cream: #faf8f3; --text: #1a1a1a; --muted: #6b7280;
+      --border: #e5e7eb; --white: #ffffff;
+      --danger: #dc2626; --danger-bg: #fef2f2;
+      --success: #16a34a; --warn: #92400e; --warn-bg: #fffbeb;
+      --r: 12px; --rsm: 8px; --sh: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;background:var(--cream);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text)}
+    #app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto}
+    .hdr{background:var(--gd);color:var(--white);padding:14px 20px 10px;flex-shrink:0}
+    .hdr-top{display:flex;align-items:center;justify-content:space-between}
+    .hdr-title{font-size:17px;font-weight:700}
+    .hdr-sub{font-size:11px;color:var(--gl);margin-top:2px}
+    .sync-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gl)}
+    .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--gl)}
+    .sync-dot.on{background:var(--gold);animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px}
+    .nav{background:var(--white);border-top:1px solid var(--border);display:flex;flex-shrink:0}
+    .nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 9px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:9px;font-weight:600}
+    .nb svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2}
+    .nb.active{color:var(--gm)}
+    .card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-bottom:12px}
+    .ct{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+    /* Players */
+    .pr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+    .pr:last-child{border-bottom:none}
+    .av{width:34px;height:34px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gm);flex-shrink:0}
+    .hp{background:var(--gp);color:var(--gm);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700}
+    .hpi{width:56px;padding:5px 6px;border:1.5px solid var(--gm);border-radius:var(--rsm);font-size:14px;font-weight:700;text-align:center}
+    .ib{background:none;border:none;cursor:pointer;padding:5px;color:var(--muted);border-radius:var(--rsm)}
+    /* Round tabs */
+    .rtabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
+    .rt{padding:7px 3px;border:1.5px solid var(--border);border-radius:var(--rsm);background:var(--white);font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:var(--muted)}
+    .rt.active{background:var(--gd);color:var(--white);border-color:var(--gd)}
+    /* Pairings */
+    .rc{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
+    .rh{background:var(--gd);color:var(--white);padding:9px 14px}
+    .rht{font-size:13px;font-weight:700}
+    .rhc{font-size:10px;color:var(--gl);margin-top:1px}
+    .prow{display:flex;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border)}
+    .prow:last-child{border-bottom:none}
+    .pp{flex:1;text-align:center}
+    .pn{font-size:12px;font-weight:600}
+    .ph{font-size:10px;color:var(--muted);margin-top:1px}
+    .pvs{font-size:10px;color:var(--muted);padding:0 8px}
+    /* Score entry */
+    .psel{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:var(--rsm);font-size:14px;font-weight:500;background:var(--white);color:var(--text);margin-bottom:12px}
+    .pb{background:var(--gd);color:var(--white);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+    .sv{font-size:22px;font-weight:800;color:var(--gold-l)}
+    .sl{font-size:9px;color:var(--gl);margin-top:2px}
+    .sb{text-align:center}
+    .stbl{width:100%;border-collapse:collapse;font-size:12px}
+    .stbl th{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:5px 3px;border-bottom:2px solid var(--border);text-align:center}
+    .stbl th:first-child{text-align:left}
+    .stbl td{padding:4px 3px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+    .stbl td:first-child{text-align:left;font-weight:700;font-size:13px}
+    .stbl tr:last-child td{border-bottom:none}
+    .si{width:44px;padding:4px 2px;border:1.5px solid var(--border);border-radius:5px;font-size:14px;font-weight:700;text-align:center;background:var(--cream)}
+    .si:focus{outline:none;border-color:var(--gm);background:var(--white)}
+    .pts{font-weight:700;font-size:13px}
+    .pe{color:#7c3aed}.pb2{color:var(--success)}.pp2{color:var(--text)}.pbog{color:var(--muted)}.pz{color:var(--danger)}
+    .tot td{font-weight:700;font-size:14px;background:var(--gp);color:var(--gd);border-top:2px solid var(--gl);padding:7px 3px}
+    /* Match live view */
+    .match-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;transition:all .3s}
+    .match-rank-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)}
+    .rank-medal{font-size:18px;width:28px}
+    .match-pair-name{font-size:14px;font-weight:700;flex:1}
+    .match-score{font-size:24px;font-weight:800;color:var(--gd);min-width:40px;text-align:right}
+    .match-pts-badge{background:var(--gd);color:var(--white);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+    .match-holes{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;padding:8px 14px;background:var(--cream)}
+    .mh{text-align:center;font-size:10px}
+    .mh-num{color:var(--muted);font-size:9px;margin-bottom:1px}
+    .mh-pts{width:24px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto}
+    .mh-empty{background:var(--border);color:var(--muted)}
+    .mh-0{background:#fee2e2;color:var(--danger)}
+    .mh-1{background:#f3f4f6;color:var(--muted)}
+    .mh-2{background:#dcfce7;color:var(--success)}
+    .mh-3{background:#bbf7d0;color:#166534}
+    .mh-4{background:#e9d5ff;color:#6d28d9}
+    /* Leaderboard */
+    .segtabs{display:flex;background:var(--border);border-radius:var(--rsm);padding:3px;margin-bottom:12px}
+    .segtab{flex:1;padding:6px;text-align:center;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none}
+    .segtab.active{background:var(--white);color:var(--gd);font-weight:700;box-shadow:var(--sh)}
+    .lbrow{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:8px}
+    .lbrow:last-child{border-bottom:none}
+    .lbrank{width:26px;font-size:16px;text-align:center}
+    .lbname{flex:1;font-size:13px;font-weight:500}
+    .lbtot{font-size:20px;font-weight:800;color:var(--gd);min-width:34px;text-align:right}
+    .lbr{background:var(--gp);color:var(--gm);border-radius:3px;padding:1px 4px;font-size:9px;font-weight:700}
+    .lbbd{display:flex;gap:3px;margin-top:2px;flex-wrap:wrap}
+    /* Admin */
+    .ir{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)}
+    .ir:last-child{border-bottom:none}
+    .btn-d{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--rsm);font-size:13px;font-weight:600;cursor:pointer;background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5}
+    /* Toast */
+    .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(--gd);color:var(--white);padding:9px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .25s;pointer-events:none;z-index:999;white-space:nowrap}
+    .toast.show{opacity:1}
+    /* Splash */
+    .splash{position:fixed;inset:0;background:var(--gd);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--white);text-align:center;z-index:9999}
+    .sp-icon{font-size:56px;margin-bottom:14px}
+    .sp-title{font-size:28px;font-weight:800}
+    .sp-sub{color:var(--gl);font-size:14px;margin-top:6px}
+    .sp-spin{width:32px;height:32px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-top:28px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:44px 20px;color:var(--muted)}
+    .empty-icon{font-size:38px;margin-bottom:10px}
+  </style>
+</head>
+<body>
+<div id="splash" class="splash">
+  <div class="sp-icon">⛳</div>
+  <div class="sp-title">Rosapenna 2026</div>
+  <div class="sp-sub">Donegal, July</div>
+  <div class="sp-spin"></div>
+</div>
+<div id="app" style="display:none">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div><div class="hdr-title">⛳ Rosapenna 2026</div><div class="hdr-sub">Donegal, July</div></div>
+      <div class="sync-row"><div class="sync-dot" id="sdot"></div><span id="slbl">Live</span></div>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+  <nav class="nav">
+    <button class="nb active" onclick="nav('players')" id="nb-players">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Players
+    </button>
+    <button class="nb" onclick="nav('pairings')" id="nb-pairings">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Pairings
+    </button>
+    <button class="nb" onclick="nav('score')" id="nb-score">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Score
+    </button>
+    <button class="nb" onclick="nav('match')" id="nb-match">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Live
+    </button>
+    <button class="nb" onclick="nav('leaderboard')" id="nb-leaderboard">
+      <svg viewBox="0 0 24 24"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
+      Board
+    </button>
+    <button class="nb" onclick="nav('admin')" id="nb-admin">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Admin
+    </button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAvtZvu0eRnn5nuPZdW75hrTUubZ2f1_b4",
+  authDomain: "rosapenna-golf-2026.firebaseapp.com",
+  databaseURL: "https://rosapenna-golf-2026-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "rosapenna-golf-2026",
+  storageBucket: "rosapenna-golf-2026.firebasestorage.app",
+  messagingSenderId: "1030041105194",
+  appId: "1:1030041105194:web:0e24f32b49455a15ae6453",
+  measurementId: "G-J94GYFV6K8"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+const ROOT = 'rosapenna2026';
+
+const STP = { name:"St Patrick's Links", holes:[
+  {par:4,si:9},{par:4,si:11},{par:3,si:17},{par:5,si:5},{par:3,si:13},
+  {par:5,si:7},{par:4,si:3},{par:4,si:15},{par:4,si:1},
+  {par:4,si:8},{par:4,si:6},{par:5,si:4},{par:4,si:12},{par:4,si:10},
+  {par:3,si:18},{par:4,si:2},{par:3,si:14},{par:4,si:16}
+]};
+const SH = { name:"Sandy Hills Links", holes:[
+  {par:5,si:13},{par:4,si:3},{par:3,si:17},{par:4,si:11},{par:4,si:5},
+  {par:4,si:1},{par:3,si:15},{par:5,si:9},{par:4,si:7},
+  {par:4,si:6},{par:3,si:12},{par:4,si:10},{par:5,si:8},{par:4,si:18},
+  {par:4,si:2},{par:3,si:14},{par:5,si:16},{par:4,si:4}
+]};
+const COURSES = [STP, SH];
+const ROUNDS = [
+  {label:"Day 1 — Front 9", short:"D1 F9", course:0, holeStart:0},
+  {label:"Day 1 — Back 9",  short:"D1 B9", course:0, holeStart:9},
+  {label:"Day 2 — Front 9", short:"D2 F9", course:1, holeStart:0},
+  {label:"Day 2 — Back 9",  short:"D2 B9", course:1, holeStart:9},
+];
+// 0=Sean,1=Rob,2=Conor,3=Andrew,4=Barry,5=Kev
+// Rounds 0-2 are fixed. Round 3 is dynamically generated from match pts standings after round 2.
+const FIXED_PAIRINGS = [
+  {pairs:[[0,5],[2,1],[4,3]]},  // Match 1: Sean&Kev, Conor&Rob, Barry&Andrew
+  {pairs:[[0,1],[2,3],[4,5]]},  // Match 2: Sean&Rob, Conor&Andrew, Barry&Kev
+  {pairs:[[0,3],[2,5],[4,1]]},  // Match 3: Sean&Andrew, Conor&Kev, Barry&Rob
+];
+
+// Get dynamic Round 4 pairings based on match pts after rounds 0-2
+function getDynamicR4Pairings() {
+  // Calculate match pts from rounds 0-2 only
+  const pts = {};
+  for (let ri = 0; ri < 3; ri++) {
+    const pr = FIXED_PAIRINGS[ri];
+    const sorted = pr.pairs.map(pair => ({
+      pair, score: betterBallRoundPts(pair[0], pair[1], ri)
+    })).sort((a,b) => b.score - a.score);
+    const matchPts = [3,2,1]; let i=0;
+    while(i < sorted.length){
+      let j=i;
+      while(j < sorted.length-1 && sorted[j].score===sorted[j+1].score) j++;
+      const shared = matchPts.slice(i,j+1).reduce((a,b)=>a+b,0)/(j-i+1);
+      for(let k=i;k<=j;k++) sorted[k].pair.forEach(p => pts[p] = (pts[p]||0) + shared);
+      i=j+1;
+    }
+  }
+  // Sort players by match pts descending, use individual stableford as tiebreaker
+  const ranked = [0,1,2,3,4,5].sort((a,b) => {
+    const diff = (pts[b]||0) - (pts[a]||0);
+    if (diff !== 0) return diff;
+    // tiebreak: individual stableford after 3 rounds
+    let sa=0, sb=0;
+    for(let r=0;r<3;r++){ sa+=playerRoundPts(a,r); sb+=playerRoundPts(b,r); }
+    return sb - sa;
+  });
+  // 1st+6th, 2nd+5th, 3rd+4th
+  return { pairs: [
+    [ranked[0], ranked[5]],
+    [ranked[1], ranked[4]],
+    [ranked[2], ranked[3]],
+  ], dynamic: true, ranked, pts };
+}
+
+function getPairings(ri) {
+  if (ri < 3) return FIXED_PAIRINGS[ri];
+  return getDynamicR4Pairings();
+}
+const DEFAULT_PLAYERS = [
+  {name:"Sean Millar",   handicap:7},
+  {name:"Rob Cooke",     handicap:24},
+  {name:"Conor Higgins", handicap:9},
+  {name:"Andrew McEvoy", handicap:15},
+  {name:"Barry Daly",    handicap:10},
+  {name:"Kev Browne",    handicap:24},
+];
+
+let state = {players: DEFAULT_PLAYERS.map(p=>({...p})), scores:{}};
+let view = 'players', curPlayer = null, curRound = 0, editHcp = null, lbTab = 'match', saving = false;
+
+function setSyncing(on) {
+  const d=document.getElementById('sdot'), l=document.getElementById('slbl');
+  if(!d) return;
+  d.className='sync-dot'+(on?' on':'');
+  l.textContent=on?'Syncing…':'Live';
+}
+async function saveState() {
+  saving=true; setSyncing(true);
+  try { await set(ref(db,ROOT), state); }
+  catch(e) { showToast('Sync failed — check connection'); }
+  saving=false; setSyncing(false);
+}
+function listenState() {
+  onValue(ref(db,ROOT), snap=>{
+    if(saving) return;
+    const d=snap.val();
+    if(d){ state=d; if(!state.scores) state.scores={}; }
+    render();
+  });
+}
+
+function getHoles(ri) {
+  const r=ROUNDS[ri];
+  return COURSES[r.course].holes.slice(r.holeStart, r.holeStart+9);
+}
+
+// Individual stableford pts for one hole
+function sfPts(strokes, par, si, hcp) {
+  if(!strokes||strokes<=0) return null;
+  const extra=Math.floor(hcp/18)+(si<=(hcp%18)?1:0);
+  const net=strokes-par-extra;
+  if(net<=-2) return 4; if(net===-1) return 3;
+  if(net===0) return 2; if(net===1) return 1;
+  return 0;
+}
+
+// Individual player stableford for a round
+function playerRoundPts(pIdx, ri) {
+  const holes=getHoles(ri);
+  const sc=state.scores?.[pIdx]?.[ri]||{};
+  let t=0;
+  holes.forEach((h,i)=>{ const p=sfPts(sc[i],h.par,h.si,state.players[pIdx]?.handicap||0); if(p!==null) t+=p; });
+  return t;
+}
+
+// Better ball: best of the two players' pts on each hole
+function betterBallHolePts(pIdx1, pIdx2, ri, holeIdx) {
+  const holes=getHoles(ri);
+  const h=holes[holeIdx];
+  const sc1=state.scores?.[pIdx1]?.[ri]||{};
+  const sc2=state.scores?.[pIdx2]?.[ri]||{};
+  const p1=sfPts(sc1[holeIdx],h.par,h.si,state.players[pIdx1]?.handicap||0);
+  const p2=sfPts(sc2[holeIdx],h.par,h.si,state.players[pIdx2]?.handicap||0);
+  if(p1===null&&p2===null) return null;
+  if(p1===null) return p2;
+  if(p2===null) return p1;
+  return Math.max(p1,p2);
+}
+
+// Better ball total for a pair across a round
+function betterBallRoundPts(pIdx1, pIdx2, ri) {
+  let t=0;
+  for(let i=0;i<9;i++){
+    const p=betterBallHolePts(pIdx1,pIdx2,ri,i);
+    if(p!==null) t+=p;
+  }
+  return t;
+}
+
+// Hole-by-hole better ball array for display
+function betterBallHoles(pIdx1, pIdx2, ri) {
+  return Array.from({length:9},(_,i)=>betterBallHolePts(pIdx1,pIdx2,ri,i));
+}
+
+function playerTotal(pIdx){ let t=0; for(let r=0;r<4;r++) t+=playerRoundPts(pIdx,r); return t; }
+
+function roundHasScores(ri) {
+  return [0,1,2,3,4,5].some(p=>Object.values(state.scores?.[p]?.[ri]||{}).some(v=>v>0));
+}
+
+function calcMatchPts(ri) {
+  // Only award match points if at least one score has been entered this round
+  if(!roundHasScores(ri)) return {};
+  const pr=getPairings(ri);
+  const sorted=pr.pairs.map(pair=>({
+    pair, bb:betterBallRoundPts(pair[0],pair[1],ri)
+  })).sort((a,b)=>b.bb-a.bb);
+  const pts=[3,2,1]; const tp={}; let i=0;
+  while(i<sorted.length){
+    let j=i;
+    while(j<sorted.length-1&&sorted[j].bb===sorted[j+1].bb) j++;
+    const shared=pts.slice(i,j+1).reduce((a,b)=>a+b,0)/(j-i+1);
+    for(let k=i;k<=j;k++) sorted[k].pair.forEach(p=>tp[p]=shared);
+    i=j+1;
+  }
+  return tp;
+}
+
+function playerTotalMatchPts(pIdx){
+  let t=0;
+  for(let r=0;r<4;r++){ const mp=calcMatchPts(r); t+=mp[pIdx]||0; }
+  return t;
+}
+
+function initials(n){ return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+
+function render() {
+  const c=document.getElementById('content');
+  if(!c) return;
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nb-'+view)?.classList.add('active');
+  if(view==='players')     c.innerHTML=renderPlayers();
+  else if(view==='pairings')    c.innerHTML=renderPairings();
+  else if(view==='score')       c.innerHTML=renderScore();
+  else if(view==='match')       c.innerHTML=renderMatch();
+  else if(view==='leaderboard') c.innerHTML=renderLeaderboard();
+  else if(view==='admin')       c.innerHTML=renderAdmin();
+}
+
+window.nav=v=>{view=v;editHcp=null;render();};
+window.setRound=r=>{curRound=r;render();};
+window.setLbTab=t=>{lbTab=t;render();};
+window.setPlayer=v=>{curPlayer=v===''?null:+v;render();};
+window.startEditHcp=i=>{editHcp=i;render();setTimeout(()=>document.getElementById('hcp_'+i)?.focus(),30);};
+window.cancelHcp=()=>{editHcp=null;render();};
+window.saveHcp=async i=>{
+  const el=document.getElementById('hcp_'+i);
+  if(el) state.players[i].handicap=Math.max(0,Math.min(54,+el.value));
+  editHcp=null; await saveState(); showToast('Handicap updated ✓'); render();
+};
+window.enterScore=async(pIdx,ri,hole,val)=>{
+  if(!state.scores) state.scores={};
+  if(!state.scores[pIdx]) state.scores[pIdx]={};
+  if(!state.scores[pIdx][ri]) state.scores[pIdx][ri]={};
+  state.scores[pIdx][ri][hole]=val>0?val:0;
+  render();
+  await saveState();
+};
+window.resetScores=async()=>{
+  if(!confirm('Clear all scores? Names and handicaps are kept.')) return;
+  state.scores={}; await saveState(); showToast('Scores cleared'); render();
+};
+
+function renderPlayers() {
+  let h=`<div class="ct">Players & Handicaps</div>`;
+  state.players.forEach((p,i)=>{
+    const ed=editHcp===i;
+    h+=`<div class="pr">
+      <div class="av">${initials(p.name)}</div>
+      <div style="flex:1;font-size:14px;font-weight:600">${p.name}</div>
+      ${ed
+        ?`<input class="hpi" type="number" id="hcp_${i}" value="${p.handicap}" min="0" max="54">
+          <button class="ib" onclick="saveHcp(${i})" style="color:var(--success)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></button>
+          <button class="ib" onclick="cancelHcp()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
+        :`<div class="hp">HCP ${p.handicap}</div>
+          <button class="ib" onclick="startEditHcp(${i})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`}
+    </div>`;
+  });
+  return h;
+}
+
+function renderPairings() {
+  let h=`<div class="ct">Round Schedule</div>`;
+  ROUNDS.forEach((round,ri)=>{
+    const pr=getPairings(ri);
+    const isDynamic = pr.dynamic === true;
+
+    // R4 not yet generated — no scores in rounds 0-2 yet
+    if(ri===3 && !isDynamic){
+      // check if there are any scores at all in rounds 0-2
+      const hasScores = [0,1,2].some(r=>[0,1,2,3,4,5].some(p=>Object.keys(state.scores?.[p]?.[r]||{}).length>0));
+      if(!hasScores){
+        h+=`<div class="rc"><div class="rh"><div class="rht">${round.label} 🏆</div><div class="rhc">${COURSES[round.course].name}</div></div>
+          <div style="padding:18px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6">
+            ⏳ <strong>Pairings auto-generated after Round 3</strong><br>
+            <span style="font-size:11px;margin-top:6px;display:block">1st pairs with 6th · 2nd with 5th · 3rd with 4th<br>Ranked by team match points</span>
+          </div>
+        </div>`;
+        return;
+      }
+    }
+
+    let banner = '';
+    if(isDynamic){
+      banner = `<div style="background:var(--gold);padding:7px 14px;font-size:11px;font-weight:700;color:var(--gd)">⚡ Auto-generated from match pts standings after Round 3</div>`;
+      if(pr.ranked && pr.pts){
+        const info = pr.ranked.map((pIdx,i)=>{
+          const v=pr.pts[pIdx]||0;
+          return `${i+1}. ${state.players[pIdx]?.name.split(' ')[0]} (${v%1===0?v:v.toFixed(1)})`;
+        }).join(' · ');
+        banner += `<div style="background:#fffbeb;padding:5px 14px;font-size:10px;color:var(--warn);border-bottom:1px solid var(--border)">${info}</div>`;
+      }
+    }
+
+    h+=`<div class="rc">
+      <div class="rh"><div class="rht">${round.label}${isDynamic?' 🏆':''}</div><div class="rhc">${COURSES[round.course].name}</div></div>
+      ${banner}
+      ${pr.pairs.map(pair=>{
+        const p1=state.players[pair[0]],p2=state.players[pair[1]];
+        return `<div class="prow">
+          <div class="pp"><div class="pn">${p1.name}</div><div class="ph">HCP ${p1.handicap}</div></div>
+          <div class="pvs">&</div>
+          <div class="pp"><div class="pn">${p2.name}</div><div class="ph">HCP ${p2.handicap}</div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+  return h;
+}
+
+function renderScore() {
+  const round=ROUNDS[curRound], holes=getHoles(curRound), pr=getPairings(curRound);
+  let h=`<div class="rtabs">${ROUNDS.map((r,i)=>`<button class="rt ${i===curRound?'active':''}" onclick="setRound(${i})">${r.short}</button>`).join('')}</div>
+  <select class="psel" onchange="setPlayer(this.value)">
+    <option value="">— Who are you? —</option>
+    ${state.players.map((p,i)=>`<option value="${i}" ${curPlayer===i?'selected':''}>${p.name}</option>`).join('')}
+  </select>`;
+
+  if(curPlayer===null){ h+=`<div class="empty"><div class="empty-icon">👆</div>Select your name to enter scores</div>`; return h; }
+
+  const pIdx=+curPlayer, hcp=state.players[pIdx]?.handicap||0;
+  const myPair=pr.pairs.find(p=>p.includes(pIdx));
+  if(myPair){
+    const ptIdx=myPair.find(x=>x!==pIdx);
+    const partner=state.players[ptIdx];
+    const myPts=playerRoundPts(pIdx,curRound);
+    const bbPts=betterBallRoundPts(myPair[0],myPair[1],curRound);
+    h+=`<div class="pb">
+      <div class="sb"><div class="sl">Your pts</div><div class="sv">${myPts}</div></div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--gl)">Partner: ${partner.name.split(' ')[0]}</div>
+        <div style="font-size:11px;color:var(--gl);margin-top:4px">Better ball</div>
+        <div style="font-size:20px;font-weight:800;color:var(--gold-l)">${bbPts}</div>
+      </div>
+      <div class="sb"><div class="sl">Their pts</div><div class="sv">${playerRoundPts(ptIdx,curRound)}</div></div>
+    </div>`;
+  }
+
+  if(!state.scores) state.scores={};
+  if(!state.scores[pIdx]) state.scores[pIdx]={};
+  if(!state.scores[pIdx][curRound]) state.scores[pIdx][curRound]={};
+  const sc=state.scores[pIdx][curRound];
+  let totPts=0, done=0;
+
+  h+=`<div class="card" style="padding:10px"><table class="stbl">
+    <thead><tr><th>Hole</th><th>Par</th><th>SI</th><th>Score</th><th>Pts</th></tr></thead><tbody>`;
+  holes.forEach((hole,i)=>{
+    const hn=round.holeStart+i+1, s=sc[i]||'';
+    const pts=s>0?sfPts(+s,hole.par,hole.si,hcp):null;
+    if(pts!==null){totPts+=pts;done++;}
+    const pc=pts===null?'':pts>=4?'pts pe':pts===3?'pts pb2':pts===2?'pts pp2':pts===1?'pts pbog':'pts pz';
+    const pl=pts===null?'—':pts>=4?'⬆'+pts:pts===3?'🐦3':String(pts);
+    h+=`<tr><td>${hn}</td><td style="color:var(--muted)">${hole.par}</td><td style="color:var(--muted)">${hole.si}</td>
+      <td><input class="si" type="number" min="1" max="15" value="${s}" placeholder="—"
+        onchange="enterScore(${pIdx},${curRound},${i},+this.value)"></td>
+      <td class="${pc}">${pl}</td></tr>`;
+  });
+  h+=`<tr class="tot"><td colspan="4" style="text-align:right;font-size:11px;padding-right:6px;font-weight:600">${done}/9 holes</td><td>${totPts}</td></tr>
+  </tbody></table></div>`;
+  return h;
+}
+
+function renderMatch() {
+  const pr=getPairings(curRound);
+  let h=`<div class="rtabs">${ROUNDS.map((r,i)=>`<button class="rt ${i===curRound?'active':''}" onclick="setRound(${i})">${r.short}</button>`).join('')}</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${ROUNDS[curRound].label} — Better Ball Stableford · Updates live</div>`;
+
+  // Sort pairs by better ball score descending
+  const results=pr.pairs.map(pair=>{
+    const bbHoles=betterBallHoles(pair[0],pair[1],curRound);
+    const bbTotal=bbHoles.reduce((t,p)=>t+(p||0),0);
+    return {pair, bbHoles, bbTotal};
+  }).sort((a,b)=>b.bbTotal-a.bbTotal);
+
+  const medals=['🥇','🥈','🥉'];
+  const matchPtsArr=[3,2,1];
+  // handle ties
+  const mpts=calcMatchPts(curRound);
+
+  results.forEach((res,rank)=>{
+    const p1=state.players[res.pair[0]], p2=state.players[res.pair[1]];
+    const pairName=`${p1.name.split(' ')[0]} & ${p2.name.split(' ')[0]}`;
+    const mp=mpts[res.pair[0]]||0;
+    const mpDisp=mp%1===0?mp:mp.toFixed(1);
+
+    h+=`<div class="match-card">
+      <div class="match-rank-bar">
+        <span class="rank-medal">${medals[rank]}</span>
+        <span class="match-pair-name">${pairName}</span>
+        <span class="match-pts-badge">${mpDisp} match pts</span>
+        <span class="match-score">${res.bbTotal}</span>
+      </div>
+      <div style="padding:6px 14px 4px;font-size:10px;color:var(--muted);display:flex;justify-content:space-between">
+        <span>${p1.name.split(' ')[0]}: ${playerRoundPts(res.pair[0],curRound)} pts</span>
+        <span>${p2.name.split(' ')[0]}: ${playerRoundPts(res.pair[1],curRound)} pts</span>
+      </div>
+      <div class="match-holes">
+        ${res.bbHoles.map((pts,i)=>{
+          const hn=ROUNDS[curRound].holeStart+i+1;
+          const cls=pts===null?'mh-empty':pts===0?'mh-0':pts===1?'mh-1':pts===2?'mh-2':pts===3?'mh-3':'mh-4';
+          return `<div class="mh">
+            <div class="mh-num">${hn}</div>
+            <div class="mh-pts ${cls}">${pts===null?'·':pts}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  return h;
+}
+
+function renderLeaderboard() {
+  let h=`<div class="segtabs">
+    <button class="segtab ${lbTab==='match'?'active':''}" onclick="setLbTab('match')">Match Pts</button>
+    <button class="segtab ${lbTab==='individual'?'active':''}" onclick="setLbTab('individual')">Individual</button>
+  </div>`;
+
+  if(lbTab==='match'){
+    const sorted=state.players.map((p,i)=>({name:p.name,idx:i,pts:playerTotalMatchPts(i)})).sort((a,b)=>b.pts-a.pts);
+    h+=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Total team match points across all 4 rounds (3/2/1 per round)</div>
+    <div class="card">`;
+    sorted.forEach((p,rank)=>{
+      const medals=['🥇','🥈','🥉'];
+      const disp=p.pts%1===0?p.pts:p.pts.toFixed(1);
+      h+=`<div class="lbrow">
+        <div class="lbrank">${medals[rank]||rank+1}</div>
+        <div style="flex:1">
+          <div class="lbname">${p.name}</div>
+          <div class="lbbd">${ROUNDS.map((_,ri)=>{
+            const mp=calcMatchPts(ri); const v=mp[p.idx]||0;
+            return `<span class="lbr">${ROUNDS[ri].short}: ${v%1===0?v:v.toFixed(1)}</span>`;
+          }).join('')}</div>
+        </div>
+        <div class="lbtot">${disp}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  } else {
+    const sorted=state.players.map((p,i)=>({name:p.name,idx:i,total:playerTotal(i),rounds:ROUNDS.map((_,r)=>playerRoundPts(i,r))})).sort((a,b)=>b.total-a.total);
+    h+=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Each player's own Stableford points across all 4 rounds</div>
+    <div class="card">`;
+    sorted.forEach((p,rank)=>{
+      const medals=['🥇','🥈','🥉'];
+      h+=`<div class="lbrow">
+        <div class="lbrank">${medals[rank]||rank+1}</div>
+        <div style="flex:1">
+          <div class="lbname">${p.name}</div>
+          <div class="lbbd">${p.rounds.map((r,i)=>`<span class="lbr">${ROUNDS[i].short}: ${r}</span>`).join('')}</div>
+        </div>
+        <div class="lbtot">${p.total}</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  return h;
+}
+
+function renderAdmin() {
+  return `<div class="card">
+    <div class="ct">Competition Format</div>
+    ${[["Scoring","Better Ball Stableford"],["Team pts","🥇3 · 🥈2 · 🥉1 per round"],["Rounds","4 × 9 holes"],["Day 1",STP.name],["Day 2",SH.name],["Players","6 — all play every round"]].map(([l,v])=>`
+    <div class="ir"><span style="color:var(--muted)">${l}</span><span style="font-weight:600">${v}</span></div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="ct">Sandy Hills Stroke Indexes</div>
+    <p style="font-size:12px;color:var(--warn);margin-bottom:8px">⚠️ Estimated — verify on Day 2 scorecard</p>
+    <table class="stbl">
+      <thead><tr><th>Hole</th><th>Par</th><th>SI</th><th>Hole</th><th>Par</th><th>SI</th></tr></thead>
+      <tbody>${[0,1,2,3,4,5,6,7,8].map(i=>`<tr>
+        <td>${i+1}</td><td>${SH.holes[i].par}</td><td>${SH.holes[i].si}</td>
+        <td>${i+10}</td><td>${SH.holes[i+9].par}</td><td>${SH.holes[i+9].si}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div class="card" style="border:1px solid #fca5a5">
+    <div class="ct" style="color:var(--danger)">Reset Scores</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Clears all scores. Names and handicaps are kept.</p>
+    <button class="btn-d" onclick="resetScores()">Reset all scores</button>
+  </div>`;
+}
+
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+window.showToast=showToast;
+
+async function boot(){
+  try{ const snap=await get(ref(db,ROOT)); if(snap.val()){ state={...state,...snap.val()}; if(!state.scores) state.scores={}; } }
+  catch(e){ console.error('Firebase error',e); }
+  document.getElementById('splash').style.display='none';
+  const a=document.getElementById('app'); a.style.display='flex'; a.style.flexDirection='column';
+  render(); listenState();
+}
+boot();
+</script>
+<script>if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(console.error));</script>
+</body>
+</html>
